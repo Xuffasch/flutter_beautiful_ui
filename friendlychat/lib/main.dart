@@ -24,6 +24,8 @@ class ChatScreen extends StatefulWidget {
 class ChatScreenState extends State<ChatScreen> {
   // Add state variable OUTSIDE of the build function
   final TextEditingController _textController = TextEditingController();
+  // feature 'Message'
+  final List<ChatMessage> _messages = <ChatMessage>[];
 
   // Add functions OUTSIDE of the build function
   Widget _buildTextComposer() {
@@ -61,13 +63,42 @@ class ChatScreenState extends State<ChatScreen> {
 
   void _handleSubmitted(String text) {
     _textController.clear();
+    // feature 'Message'
+    ChatMessage message = ChatMessage(
+      text: text,
+    );
+    setState( () {
+      _messages.insert(0, message);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(title: new Text("FriendlyChat")),
-      body: _buildTextComposer(),
+      body: Column(
+        children: <Widget>[
+          // ListView to display the messages
+          Flexible(
+            child: ListView.builder(
+              padding: EdgeInsets.all(8.0),
+              reverse: true,
+              itemBuilder: (_, int index) => _messages[index],
+              itemCount: _messages.length, 
+            ),
+          ),
+          // Divider to separate the list from the text field
+          Divider(height: 1.0),
+          // Text field to enter messages. Container is used to
+          // provide a way to defint background images, padding, margins,
+          // to the _buildTextComposer output widget
+          Container(
+            decoration: BoxDecoration( 
+              color: Theme.of(context).cardColor),
+            child: _buildTextComposer(),
+          ),
+        ],
+      ),
     );
   }
 }
