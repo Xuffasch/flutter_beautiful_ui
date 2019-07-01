@@ -21,14 +21,13 @@ class ChatScreen extends StatefulWidget {
   State createState() => new ChatScreenState();
 }
 
-// feature 'Animation'
-// add TickerProviderStateMixin in the class definition, so
-// ChatScreenState can receive a vsync argument and be animated
+
 class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   // Add state variable OUTSIDE of the build function
   final TextEditingController _textController = TextEditingController();
-  // feature 'Message'
   final List<ChatMessage> _messages = <ChatMessage>[];
+  // feature 'Beautiful' text 
+  bool _isComposing = false;
 
   // Add functions OUTSIDE of the build function !
   Widget _buildTextComposer() {
@@ -41,6 +40,14 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             Flexible(
               child: TextField(
                 controller: _textController,
+                // feature 'Beautiful' text
+                // Add a callback to set _isComposing to true
+                // if text has been entered
+                onChanged: (String text) {
+                  setState(() {
+                    _isComposing = text.length > 0;
+                  });
+                },
                 onSubmitted: _handleSubmitted,
                 decoration: new InputDecoration.collapsed(
                     hintText: "Send your message"),
@@ -50,7 +57,13 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               margin: EdgeInsets.symmetric(horizontal: 4.0),
               child: IconButton(
                   icon: Icon(Icons.send),
-                  onPressed: () => _handleSubmitted(_textController.text)),
+                  // feature 'Beautiful' text 
+                  // If the textfield is empty, _handleSubmitted is not
+                  // called. Setting onPressed to null disables the Send button
+                  onPressed: _isComposing 
+                    ? () => _handleSubmitted(_textController.text) 
+                    : null
+              ),
             ),
           ],
         ),
@@ -60,11 +73,13 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
 
   void _handleSubmitted(String text) {
     _textController.clear();
+    // feature 'Beautiful'
+    // reset _isComposing as the text will be processed
+    setState(() {
+      _isComposing = false;
+    });
     ChatMessage message = ChatMessage(
       text: text,
-      // feature 'Animation'
-      // Create a new ChatMessage that will be build with
-      // an animation controller 
       animationController: AnimationController(
         duration: Duration(milliseconds: 200),
         vsync: this,
@@ -73,8 +88,6 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     setState(() {
       _messages.insert(0, message);
     });
-    // feature 'Animation'
-    // Start the animation
     message.animationController.forward();
   }
 
@@ -101,9 +114,7 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
       ),
     );
   }
-  // feature 'Animation'
-  // to remove the animation widget when ChatScreenState is
-  // not on screen 
+
   @override
   void dispose() {
     for (ChatMessage message in _messages)
@@ -115,16 +126,10 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
 class ChatMessage extends StatelessWidget {
   ChatMessage({this.text, this.animationController});
   final String text;
-  // feature 'Animation'
   final AnimationController animationController;
 
   @override
   Widget build(BuildContext context) {
-    // feature 'Animation'
-    // Building ChatMessage will be done with a SizeTransition animation
-    // on a Container widget holding the content of ChatMessage.
-    // the 'content' Container is wrapped in SizeTransition widget controlled
-    // by the animationController passed at initialization 
     return SizeTransition(
       sizeFactor: CurvedAnimation(
         parent: animationController, curve: Curves.easeOut),
