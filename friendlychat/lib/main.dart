@@ -1,6 +1,24 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+// feature 'Beautiful' theme
+// import Cupertino package
+import 'package:flutter/cupertino.dart';
 
 const String _name = "Tristan";
+
+// feature 'Beautiful' theme
+// Add Apple and Custom theme to the app
+
+final ThemeData kIOSTheme = ThemeData(
+  primarySwatch: Colors.orange,
+  primaryColor: Colors.grey[100],
+  primaryColorBrightness: Brightness.light,
+);
+
+final ThemeData kDefaultTheme = ThemeData(
+  primarySwatch: Colors.purple,
+  accentColor: Colors.orangeAccent[400],
+);
 
 void main() {
   runApp(new FriendlychatApp());
@@ -11,6 +29,10 @@ class FriendlychatApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: "Friendlychat",
+      // feature 'Beautiful' theme
+      theme: defaultTargetPlatform == TargetPlatform.iOS
+        ? kIOSTheme
+        : kDefaultTheme,
       home: new ChatScreen(),
     );
   }
@@ -50,11 +72,19 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             ),
             Container(
               margin: EdgeInsets.symmetric(horizontal: 4.0),
-              child: IconButton(
+              // feature 'Beautiful' theme
+              // The Send button is differentiated depending on the platform
+              child: Theme.of(context).platform == TargetPlatform.iOS 
+                ? CupertinoButton(
+                    child: Text("Send"),
+                    onPressed: _isComposing
+                      ? () => _handleSubmitted(_textController.text)
+                      : null,)
+                : IconButton(
                   icon: Icon(Icons.send),
                   onPressed: _isComposing
                       ? () => _handleSubmitted(_textController.text)
-                      : null),
+                      : null)
             ),
           ],
         ),
@@ -83,7 +113,15 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: new AppBar(title: new Text("FriendlyChat")),
+      // feature 'Beautiful' theme
+      // On Android the app would have a floating effect (i.e. has a shadow)
+      // On iOS, th app bar does not float (i.e. does not show a shadow)
+      appBar: new AppBar(
+        title: new Text("FriendlyChat"),  
+        elevation: Theme.of(context).platform == TargetPlatform.iOS 
+          ? 0.0 
+          : 4.0,
+      ),
       body: Column(
         children: <Widget>[
           Flexible(
