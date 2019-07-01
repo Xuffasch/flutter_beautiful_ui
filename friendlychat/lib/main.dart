@@ -21,25 +21,23 @@ class ChatScreen extends StatefulWidget {
   State createState() => new ChatScreenState();
 }
 
-class ChatScreenState extends State<ChatScreen> {
+// feature 'Animation'
+// add TickerProviderStateMixin in the class definition, so
+// ChatScreenState can receive a vsync argument and be animated
+class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   // Add state variable OUTSIDE of the build function
   final TextEditingController _textController = TextEditingController();
   // feature 'Message'
   final List<ChatMessage> _messages = <ChatMessage>[];
 
-  // Add functions OUTSIDE of the build function
+  // Add functions OUTSIDE of the build function !
   Widget _buildTextComposer() {
     return IconTheme(
       data: IconThemeData(color: Theme.of(context).accentColor),
-      // The main Container is wrapped in IconTheme to send
-      // color parameters to the Send icon
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 8.0),
-        // Use Row widget to horizontally align a series of
-        // widget
         child: Row(
           children: <Widget>[
-            // Textfield to write message
             Flexible(
               child: TextField(
                 controller: _textController,
@@ -48,7 +46,6 @@ class ChatScreenState extends State<ChatScreen> {
                     hintText: "Send your message"),
               ),
             ),
-            // Button to send written messages
             Container(
               margin: EdgeInsets.symmetric(horizontal: 4.0),
               child: IconButton(
@@ -63,13 +60,22 @@ class ChatScreenState extends State<ChatScreen> {
 
   void _handleSubmitted(String text) {
     _textController.clear();
-    // feature 'Message'
     ChatMessage message = ChatMessage(
       text: text,
+      // feature 'Animation'
+      // Create a new ChatMessage that will be build with
+      // an animation controller 
+      animationController: AnimationController(
+        duration: Duration(milliseconds: 200),
+        vsync: this,
+      ),
     );
-    setState( () {
+    setState(() {
       _messages.insert(0, message);
     });
+    // feature 'Animation'
+    // Start the animation
+    message.animationController.forward();
   }
 
   @override
@@ -78,63 +84,74 @@ class ChatScreenState extends State<ChatScreen> {
       appBar: new AppBar(title: new Text("FriendlyChat")),
       body: Column(
         children: <Widget>[
-          // ListView to display the messages
           Flexible(
             child: ListView.builder(
               padding: EdgeInsets.all(8.0),
               reverse: true,
               itemBuilder: (_, int index) => _messages[index],
-              itemCount: _messages.length, 
+              itemCount: _messages.length,
             ),
           ),
-          // Divider to separate the list from the text field
           Divider(height: 1.0),
-          // Text field to enter messages. Container is used to
-          // provide a way to defint background images, padding, margins,
-          // to the _buildTextComposer output widget
           Container(
-            decoration: BoxDecoration( 
-              color: Theme.of(context).cardColor),
+            decoration: BoxDecoration(color: Theme.of(context).cardColor),
             child: _buildTextComposer(),
           ),
         ],
       ),
     );
   }
+  // feature 'Animation'
+  // to remove the animation widget when ChatScreenState is
+  // not on screen 
+  @override
+  void dispose() {
+    for (ChatMessage message in _messages)
+      message.animationController.dispose();
+    super.dispose();
+  }
 }
 
 class ChatMessage extends StatelessWidget {
-  ChatMessage({this.text});
+  ChatMessage({this.text, this.animationController});
   final String text;
+  // feature 'Animation'
+  final AnimationController animationController;
 
-  @override 
+  @override
   Widget build(BuildContext context) {
-    return Container (
-      margin: const EdgeInsets.symmetric(vertical: 10.0),
-      // Row to contain an avatar and a bloc of 2 vertically 
-      // stacked Text, horizontally distributed 
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          // Container to position the avatar
-          Container(
-            margin: const EdgeInsets.only(right: 16.0),
-            child: CircleAvatar(child: Text(_name[0])),
-          ),
-          // Container to position the texts
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(_name, style: Theme.of(context).textTheme.subhead),
-              Container(
-                margin: const EdgeInsets.only(top: 5.0),
-                child: Text(text),
-              ),
-            ],
-          ),
-        ],
+    // feature 'Animation'
+    // Building ChatMessage will be done with a SizeTransition animation
+    // on a Container widget holding the content of ChatMessage.
+    // the 'content' Container is wrapped in SizeTransition widget controlled
+    // by the animationController passed at initialization 
+    return SizeTransition(
+      sizeFactor: CurvedAnimation(
+        parent: animationController, curve: Curves.easeOut),
+      axisAlignment: 0.0,
+      // Content of the ChatMessage widget
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 10.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Container(
+              margin: const EdgeInsets.only(right: 16.0),
+              child: CircleAvatar(child: Text(_name[0])),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(_name, style: Theme.of(context).textTheme.subhead),
+                Container(
+                  margin: const EdgeInsets.only(top: 5.0),
+                  child: Text(text),
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
-
 }
