@@ -122,22 +122,34 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           ? 0.0 
           : 4.0,
       ),
-      body: Column(
-        children: <Widget>[
-          Flexible(
-            child: ListView.builder(
-              padding: EdgeInsets.all(8.0),
-              reverse: true,
-              itemBuilder: (_, int index) => _messages[index],
-              itemCount: _messages.length,
+      // feature 'Beautiful' theme 2
+      // Wrap the content after the appBar to give it a grey
+      // border to distinguish if from the appBar
+      body: Container(
+          child: Column(
+          children: <Widget>[
+            Flexible(
+              child: ListView.builder(
+                padding: EdgeInsets.all(8.0),
+                reverse: true,
+                itemBuilder: (_, int index) => _messages[index],
+                itemCount: _messages.length,
+              ),
             ),
-          ),
-          Divider(height: 1.0),
-          Container(
-            decoration: BoxDecoration(color: Theme.of(context).cardColor),
-            child: _buildTextComposer(),
-          ),
-        ],
+            Divider(height: 1.0),
+            Container(
+              decoration: BoxDecoration(color: Theme.of(context).cardColor),
+              child: _buildTextComposer(),
+            ),
+          ],
+        ),
+        decoration: Theme.of(context).platform == TargetPlatform.iOS 
+          ? BoxDecoration(
+              border: Border(
+                        top: BorderSide(color: Colors.grey[700]),
+                      ),
+            )
+          : null
       ),
     );
   }
