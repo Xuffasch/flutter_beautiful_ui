@@ -21,12 +21,10 @@ class ChatScreen extends StatefulWidget {
   State createState() => new ChatScreenState();
 }
 
-
 class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
   // Add state variable OUTSIDE of the build function
   final TextEditingController _textController = TextEditingController();
   final List<ChatMessage> _messages = <ChatMessage>[];
-  // feature 'Beautiful' text 
   bool _isComposing = false;
 
   // Add functions OUTSIDE of the build function !
@@ -40,9 +38,6 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
             Flexible(
               child: TextField(
                 controller: _textController,
-                // feature 'Beautiful' text
-                // Add a callback to set _isComposing to true
-                // if text has been entered
                 onChanged: (String text) {
                   setState(() {
                     _isComposing = text.length > 0;
@@ -57,13 +52,9 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               margin: EdgeInsets.symmetric(horizontal: 4.0),
               child: IconButton(
                   icon: Icon(Icons.send),
-                  // feature 'Beautiful' text 
-                  // If the textfield is empty, _handleSubmitted is not
-                  // called. Setting onPressed to null disables the Send button
-                  onPressed: _isComposing 
-                    ? () => _handleSubmitted(_textController.text) 
-                    : null
-              ),
+                  onPressed: _isComposing
+                      ? () => _handleSubmitted(_textController.text)
+                      : null),
             ),
           ],
         ),
@@ -73,8 +64,6 @@ class ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
 
   void _handleSubmitted(String text) {
     _textController.clear();
-    // feature 'Beautiful'
-    // reset _isComposing as the text will be processed
     setState(() {
       _isComposing = false;
     });
@@ -131,8 +120,8 @@ class ChatMessage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizeTransition(
-      sizeFactor: CurvedAnimation(
-        parent: animationController, curve: Curves.easeOut),
+      sizeFactor:
+          CurvedAnimation(parent: animationController, curve: Curves.easeOut),
       axisAlignment: 0.0,
       // Content of the ChatMessage widget
       child: Container(
@@ -144,15 +133,20 @@ class ChatMessage extends StatelessWidget {
               margin: const EdgeInsets.only(right: 16.0),
               child: CircleAvatar(child: Text(_name[0])),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(_name, style: Theme.of(context).textTheme.subhead),
-                Container(
-                  margin: const EdgeInsets.only(top: 5.0),
-                  child: Text(text),
-                ),
-              ],
+            // feature 'Beatiful' wrap
+            // Wrap the original Column widget in an
+            // Expanded widget
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(_name, style: Theme.of(context).textTheme.subhead),
+                  Container(
+                    margin: const EdgeInsets.only(top: 5.0),
+                    child: Text(text),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
